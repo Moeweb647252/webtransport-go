@@ -116,7 +116,11 @@ func (d *Dialer) Dial(ctx context.Context, urlStr string, reqHdr http.Header) (*
 		return nil, nil, err
 	}
 
-	tr := &http3.Transport{EnableDatagrams: true}
+	tr := &http3.Transport{EnableDatagrams: true,
+		AdditionalSettings: map[uint64]uint64{
+			settingsEnableWebtransport: 1,
+		}
+	}
 	rsp, sess, err := d.handleConn(ctx, tr, qconn, req)
 	if err != nil {
 		var msg string
