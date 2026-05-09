@@ -118,8 +118,8 @@ func (d *Dialer) Dial(ctx context.Context, urlStr string, reqHdr http.Header) (*
 
 	tr := &http3.Transport{EnableDatagrams: true,
 		AdditionalSettings: map[uint64]uint64{
-			0x8: 1,
-			settingsWebTransportEnabled: 1,
+			0x8:                               1,
+			settingsWebTransportEnabled:       1,
 			settingsEnableWebtransportDraft06: 1,
 		},
 	}
@@ -232,8 +232,9 @@ func (d *Dialer) handleConn(ctx context.Context, tr *http3.Transport, qconn *qui
 		return nil, nil, &RequirementsNotMetError{Message: "server didn't enable WebTransport"}
 	}
 	// any non-zero value for SETTINGS_WT_ENABLED means that WebTransport is enabled
-	s, ok := settings.Other[settingsWebTransportEnabled]
-	if !ok || s == 0 {
+	enabledWebTransport, ok := settings.Other[settingsWebTransportEnabled]
+	enabledWebTransportDraft06, okDraft06 := settings.Other[settingsEnableWebtransportDraft06]
+	if (!ok || enabledWebTransport == 0) && (!okDraft06 || enabledWebTransportDraft06 == 0) {
 		return nil, nil, &RequirementsNotMetError{Message: "server didn't enable WebTransport"}
 	}
 
